@@ -1,0 +1,28 @@
+{
+	"name": "local-time-block",
+	"version": "0.1.0",
+	"author": "Christopher D Gibson",
+	"authorURI": "https://christopherdgibson.github.io",
+	"license": "GPL-2.0-or-later",
+	"licenseURI": "https://www.gnu.org/licenses/gpl-2.0.html",
+	"description": "Block for displaying local time.",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build --blocks-manifest",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --blocks-manifest",
+		"dev": "wp-scripts start --mode=development"
+	},
+	"dependencies": {
+		"@wordpress/block-editor": "latest",
+		"@wordpress/blocks": "latest",
+		"@wordpress/i18n": "latest"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^31.2.0"
+	}
+}
