@@ -1,4 +1,11 @@
 {
+  "defaultAttributes":
+    {
+  		"cardBgColor": "#e3e3e3",
+      "cardFontColor": "#0d3ca1",
+      "gradientColorLeft": "#0000FF",
+      "gradientColorRight": "#FFA500"
+		},
   "duotonePalette": [
     {
       "colors": ["#0000FF", "#FFA500"],

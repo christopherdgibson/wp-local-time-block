@@ -27,11 +27,11 @@ return array(
 				'type' => 'string',
 				'default' => '#0d3ca1'
 			),
-			'dividerColorLeft' => array(
+			'gradientColorLeft' => array(
 				'type' => 'string',
 				'default' => '#0000FF'
 			),
-			'dividerColorRight' => array(
+			'gradientColorRight' => array(
 				'type' => 'string',
 				'default' => '#FFA500'
 			)

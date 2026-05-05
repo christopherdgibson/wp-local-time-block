@@ -24,11 +24,11 @@
       "type": "string",
       "default": "#0d3ca1"
     },
-    "dividerColorLeft": {
+    "gradientColorLeft": {
       "type": "string",
       "default": "#0000FF"
     },
-    "dividerColorRight": {
+    "gradientColorRight": {
       "type": "string",
       "default": "#FFA500"
     }

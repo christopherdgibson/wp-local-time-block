@@ -1,17 +1,13 @@
-// components/DividerColorsPanel.jsx
+// components/GradientColorsPanel.jsx
 import { PanelBody, DuotonePicker } from "@wordpress/components";
 
-import blockMetadata from "../block.json";
 import constants from "../constants.json";
 
-//const DEFAULT_DUOTONE_COLORS = constants.defaultDuotoneColors;
+const DEFAULT_GRADIENT_LEFT = constants.defaultAttributes.gradientColorLeft;
+const DEFAULT_GRADIENT_RIGHT = constants.defaultAttributes.gradientColorRight;
 const DUOTONE_PALETTE = constants.duotonePalette;
+console.log('DEFAULT_DUOTONE_COLORS: ', [DEFAULT_GRADIENT_LEFT, DEFAULT_GRADIENT_RIGHT]);
 //const THEME_ATTRIBUTES = constants.themeAttributes;
-
-const DEFAULT_LEFT_COLOR = blockMetadata.attributes.dividerColorLeft.default;
-const DEFAULT_RIGHT_COLOR = blockMetadata.attributes.dividerColorRight.default;
-// const DEFAULT_DUOTONE_COLORS = ["#0000FF", "#FFA500"];
-const DEFAULT_DUOTONE_COLORS = [DEFAULT_LEFT_COLOR, DEFAULT_RIGHT_COLOR];
 
 // const DUOTONE_PALETTE = [
 //   {
@@ -57,23 +53,23 @@ const DEFAULT_DUOTONE_COLORS = [DEFAULT_LEFT_COLOR, DEFAULT_RIGHT_COLOR];
 //   }
 // ];
 
-export default function DividerColorsPanel({ dividerColorLeft, dividerColorRight, setAttributes }) {
+export default function GradientColorsPanel({ gradientColorLeft, gradientColorRight, setAttributes }) {
   return (
-    <PanelBody title="Divider Colors">
+    <PanelBody title="Gradient Colors">
       <DuotonePicker
         duotonePalette={DUOTONE_PALETTE}
         value={
-          dividerColorLeft && dividerColorRight
-            ? [dividerColorLeft, dividerColorRight]
-            : DEFAULT_DUOTONE_COLORS
+          gradientColorLeft && gradientColorRight
+            ? [gradientColorLeft, gradientColorRight]
+            : [DEFAULT_GRADIENT_LEFT, DEFAULT_GRADIENT_LEFT]
         }
         onChange={(newValue) => {
           if (newValue === undefined || newValue === "unset") {
-            setAttributes({ dividerColorLeft: "transparent", dividerColorRight: "transparent" });
+            setAttributes({ gradientColorLeft: "transparent", gradientColorRight: "transparent" });
           } else if (!Array.isArray(newValue) || newValue.length !== 2) {
-            setAttributes({ dividerColorLeft: DEFAULT_DUOTONE_COLORS[0], dividerColorRight: DEFAULT_DUOTONE_COLORS[1] });
+            setAttributes({ gradientColorLeft: DEFAULT_GRADIENT_LEFT, gradientColorRight: DEFAULT_GRADIENT_RIGHT });
           } else {
-            setAttributes({ dividerColorLeft: newValue[0], dividerColorRight: newValue[1] });
+            setAttributes({ gradientColorLeft: newValue[0], gradientColorRight: newValue[1] });
           }
         }}
       />

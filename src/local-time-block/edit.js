@@ -18,12 +18,11 @@ import {
   ColorPalette,
   ColorPicker,
   DuotoneSwatch,
-  Modal,
   PanelBody,
   SegmentedControl,
 } from "@wordpress/components";
 
-import DividerColorsPanel from "./components/DividerColorsPanel";
+import GradientColorsPanel from "./components/GradientColorsPanel";
 import RestoreToDefaults from "./components/RestoreToDefaults";
 
 /**
@@ -49,35 +48,35 @@ import { useRef, useEffect, useState } from "@wordpress/element";
  * @return {Element} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
-  const { dividerColorLeft, dividerColorRight, cardBgColor, cardFontColor } =
+  const { gradientColorLeft, gradientColorRight, cardBgColor, cardFontColor } =
     attributes;
   const DEFAULT_FONT_COLOR = blockMetadata.attributes.cardFontColor.default;
   const DEFAULT_BG_COLOR = blockMetadata.attributes.cardBgColor.default;
-  const DEFAULT_LEFT_COLOR = blockMetadata.attributes.dividerColorLeft.default;
+  const DEFAULT_LEFT_COLOR = blockMetadata.attributes.gradientColorLeft.default;
   const DEFAULT_RIGHT_COLOR =
-    blockMetadata.attributes.dividerColorRight.default;
+    blockMetadata.attributes.gradientColorRight.default;
   const THEME_ATTRIBUTES = {
     blue: {
-      dividerColorLeft: "#1a56d6",
-      dividerColorRight: "#e07b20",
+      gradientColorLeft: "#1a56d6",
+      gradientColorRight: "#e07b20",
       cardFontColor: "#1a56d6",
       cardBgColor: "#c2ddf7",
     },
     forest: {
-      dividerColorLeft: "#1a6b3c",
-      dividerColorRight: "#c4962a",
+      gradientColorLeft: "#1a6b3c",
+      gradientColorRight: "#c4962a",
       cardFontColor: "#1a6b3c",
       cardBgColor: "#b8dfc8",
     },
     plum: {
-      dividerColorLeft: "#5b2d8e",
-      dividerColorRight: "#c0392b",
+      gradientColorLeft: "#5b2d8e",
+      gradientColorRight: "#c0392b",
       cardFontColor: "#5b2d8e",
       cardBgColor: "#d4bfee",
     },
     slate: {
-      dividerColorLeft: "#2c4a6e",
-      dividerColorRight: "#e05c3a",
+      gradientColorLeft: "#2c4a6e",
+      gradientColorRight: "#e05c3a",
       cardFontColor: "#2c4a6e",
       cardBgColor: "#b8cfe0",
     },
@@ -132,7 +131,6 @@ export default function Edit({ attributes, setAttributes }) {
   const [activeTab, setActiveTab] = useState("presets");
   const [activeSubTab, setActiveSubTab] = useState("background");
   const [activeTheme, setActiveTheme] = useState("default-colors");
-  const [isModalOpenDefaultCard, setIsModalOpenDefaultCard] = useState(false);
   const blockProps = useBlockProps({ className: "local-time-container" });
   const containerRef = useRef();
   const apiDataRef = useRef();
@@ -358,12 +356,45 @@ export default function Edit({ attributes, setAttributes }) {
         {activeTab === "custom" && customColorsPanel()}
         {activeTab === "defaults" && (
           <RestoreToDefaults
-            isModalOpenDefaultCard={isModalOpenDefaultCard}
-            setIsModalOpenDefaultCard={setIsModalOpenDefaultCard}
             setAttributes={setAttributes}
           />
         )}
       </PanelBody>
+    );
+  }
+
+  function customColorsPanel() {
+    return (
+      <>
+        <ButtonGroup>
+          {addActiveSubTab("background", "Background")}
+          {addActiveSubTab("text", "Text")}
+          {addActiveSubTab("gradient", "Gradient")}
+        </ButtonGroup>
+        {activeSubTab === "background" && (
+          <ColorPicker
+            color={cardBgColor}
+            onChangeComplete={(value) =>
+              setAttributes({ cardBgColor: value.hex })
+            }
+            disableAlpha
+          />
+        )}
+        {activeSubTab === "text" && (
+          <ColorPicker
+            color={cardFontColor}
+            onChangeComplete={(value) =>
+              setAttributes({ cardFontColor: value.hex })
+            }
+            disableAlpha
+          />
+        )}
+        {activeSubTab === "gradient" && <GradientColorsPanel
+          gradientColorLeft={gradientColorLeft}
+          gradientColorRight={gradientColorRight}
+          setAttributes={setAttributes}
+        />}
+      </>
     );
   }
 
@@ -373,147 +404,38 @@ export default function Edit({ attributes, setAttributes }) {
   //       <ButtonGroup>
   //         {addActiveSubTab("background", "Background")}
   //         {addActiveSubTab("text", "Text")}
-  //         {addActiveSubTab("divider", "Divider")}
+  //         {addActiveSubTab("gradient", "Gradient")}
   //       </ButtonGroup>
-  //       {activeSubTab === "background" && (
-  //         <ColorPicker
-  //           color={cardBgColor}
-  //           onChangeComplete={(value) =>
-  //             setAttributes({ cardBgColor: value.hex })
-  //           }
-  //           disableAlpha
-  //         />
-  //       )}
-  //       {activeSubTab === "text" && (
-  //         <ColorPicker
-  //           color={cardFontColor}
-  //           onChangeComplete={(value) =>
-  //             setAttributes({ cardFontColor: value.hex })
-  //           }
-  //           disableAlpha
-  //         />
-  //       )}
-  //       {activeSubTab === "divider" && <DividerColorsPanel
-  //         dividerColorLeft={dividerColorLeft}
-  //         dividerColorRight={dividerColorRight}
-  //         setAttributes={setAttributes}
-  //       />}
+  //       {subTabContent[activeSubTab]}
   //     </>
   //   );
   // }
 
-  function customColorsPanel() {
-    return (
-      <>
-        <ButtonGroup>
-          {addActiveSubTab("background", "Background")}
-          {addActiveSubTab("text", "Text")}
-          {addActiveSubTab("divider", "Divider")}
-        </ButtonGroup>
-        {subTabContent[activeSubTab]}
-      </>
-    );
-  }
-
-  const subTabContent = {
-    background: (
-      <ColorPicker
-        color={cardBgColor}
-        onChangeComplete={(value) => setAttributes({ cardBgColor: value.hex })}
-        disableAlpha
-      />
-    ),
-    text: (
-      <ColorPicker
-        color={cardFontColor}
-        onChangeComplete={(value) =>
-          setAttributes({ cardFontColor: value.hex })
-        }
-        disableAlpha
-      />
-    ),
-    divider: (
-      <DividerColorsPanel
-        dividerColorLeft={dividerColorLeft}
-        dividerColorRight={dividerColorRight}
-        setAttributes={setAttributes}
-      />
-    ),
-  };
-
-  // function restoreToDefaults() {
-  //   return (
-  //     <div style={{ marginTop: "1em", textAlign: "center" }}>
-  //       <Button
-  //         variant="primary"
-  //         onClickCapture={() => setIsModalOpenDefaultCard(true)}
-  //       >
-  //         Restore to defaults
-  //       </Button>
-  //       {isModalOpenDefaultCard && (
-  //         <Modal
-  //           title="Restore Defaults"
-  //           onRequestClose={() => setIsModalOpenDefaultCard(false)}
-  //         >
-  //           <p>Are you sure you want to restore the default colors?</p>
-  //           <Button
-  //             variant="primary"
-  //             onClick={() => {
-  //               setAttributes({
-  //                 dividerColorLeft: DEFAULT_LEFT_COLOR,
-  //                 dividerColorRight: DEFAULT_RIGHT_COLOR,
-  //                 cardBgColor: DEFAULT_BG_COLOR,
-  //                 cardFontColor: DEFAULT_FONT_COLOR,
-  //               });
-  //               setIsModalOpenDefaultCard(false);
-  //             }}
-  //           >
-  //             Yes, restore.
-  //           </Button>
-  //           <Button
-  //             variant="secondary"
-  //             onClick={() => setIsModalOpenDefaultCard(false)}
-  //             style={{ marginLeft: "1em" }}
-  //           >
-  //             Cancel
-  //           </Button>
-  //         </Modal>
-  //       )}
-  //     </div>
-  //   );
-  // }
-
-  // function dividerColorsPanel() {
-  //   return (
-  //     <PanelBody ref={duotoneRef} title="Divider Colors">
-  //       <>
-  //         <DuotonePicker
-  //           duotonePalette={DUOTONE_PALETTE}
-  //           value={
-  //             dividerColorLeft && dividerColorRight
-  //               ? [dividerColorLeft, dividerColorRight]
-  //               : DEFAULT_DUOTONE_COLORS
-  //           }
-  //           onChange={(newValue) => {
-  //             if (newValue === undefined || newValue === "unset") {
-  //               setAttributes({
-  //                 dividerColorLeft: "transparent",
-  //                 dividerColorRight: "transparent",
-  //               });
-  //             } else if (!Array.isArray(newValue) || newValue.length !== 2) {
-  //               setDuotone(DEFAULT_DUOTONE_COLORS);
-  //             } else {
-  //               setAttributes({
-  //                 dividerColorLeft: newValue[0],
-  //                 dividerColorRight: newValue[1],
-  //               });
-  //             }
-  //           }}
-  //         />
-  //       </>
-  //     </PanelBody>
-  //   );
-  // }
+  // const subTabContent = {
+  //   background: (
+  //     <ColorPicker
+  //       color={cardBgColor}
+  //       onChangeComplete={(value) => setAttributes({ cardBgColor: value.hex })}
+  //       disableAlpha
+  //     />
+  //   ),
+  //   text: (
+  //     <ColorPicker
+  //       color={cardFontColor}
+  //       onChangeComplete={(value) =>
+  //         setAttributes({ cardFontColor: value.hex })
+  //       }
+  //       disableAlpha
+  //     />
+  //   ),
+  //   gradient: (
+  //     <GradientColorsPanel
+  //       gradientColorLeft={gradientColorLeft}
+  //       gradientColorRight={gradientColorRight}
+  //       setAttributes={setAttributes}
+  //     />
+  //   ),
+  // };
 
   const addActiveTab = (tabName, tabText) => {
     return (
@@ -561,8 +483,8 @@ export default function Edit({ attributes, setAttributes }) {
         style={{
           "--base-bg": cardBgColor,
           "--font-selected": cardFontColor,
-          "--accent-primary": dividerColorLeft,
-          "--accent-secondary": dividerColorRight,
+          "--accent-primary": gradientColorLeft,
+          "--accent-secondary": gradientColorRight,
         }}
       >
         <svg width="0" height="0" style={{ position: "absolute" }}>
