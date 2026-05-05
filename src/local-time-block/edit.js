@@ -12,19 +12,8 @@ import { __ } from "@wordpress/i18n";
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
 import { useBlockProps, InspectorControls } from "@wordpress/block-editor";
-import {
-  Button,
-  ButtonGroup,
-  ColorPalette,
-  ColorPicker,
-  DuotoneSwatch,
-  PanelBody,
-  SegmentedControl,
-} from "@wordpress/components";
 
-import PresetColorsPanel from "./components/PresetColorsPanel";
-import GradientColorsPanel from "./components/GradientColorsPanel";
-import RestoreToDefaults from "./components/RestoreToDefaults";
+import CardColorsPanel from "./components/CardColorsPanel";
 import Dropdown from "./components/Dropdown";
 
 import {fetchTimeApiData} from "./assets/js/fetchTimeApi.js";
@@ -51,12 +40,11 @@ import { useRef, useEffect, useState } from "@wordpress/element";
  *
  * @return {Element} Element to render.
  */
+
 export default function Edit({ attributes, setAttributes }) {
   const { gradientColorLeft, gradientColorRight, cardBgColor, cardFontColor } =
     attributes;
 
-  const [activeTab, setActiveTab] = useState("presets");
-  const [activeSubTab, setActiveSubTab] = useState("background");
   const blockProps = useBlockProps({ className: "local-time-container" });
   const containerRef = useRef();
   const apiDataRef = useRef();
@@ -70,8 +58,6 @@ export default function Edit({ attributes, setAttributes }) {
     return () => clearInterval(interval);
   }, []);
 
-  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   // Remove unused Duotone items
   // useEffect(() => {
   //   if (!duotoneRef.current) return;
@@ -84,11 +70,6 @@ export default function Edit({ attributes, setAttributes }) {
   //     .querySelector("button.components-circular-option-picker__clear")
   //     ?.remove();
   // });
-
-  // Date strings
-  //   const currentDateTime = new Date();
-
-  //  const timeDifference = utcOffsetMinutes*60 + time.getTimezoneOffset(); //getTimezoneOffset();
 
   const currentDate = time.toLocaleString("default", {
     day: "numeric",
@@ -124,127 +105,6 @@ export default function Edit({ attributes, setAttributes }) {
   const compareMinutes = timeCompare.getMinutes().toString().padStart(2, "0");
   const compareSeconds = timeCompare.getSeconds().toString().padStart(2, "0");
 
-  // Panels and UI
-
-  function cardColorsPanel() {
-    return (
-      <PanelBody title="Card Design">
-        <ButtonGroup>
-          {addActiveTab("presets", "Presets")}
-          {addActiveTab("custom", "Custom")}
-          {addActiveTab("defaults", "Defaults")}
-        </ButtonGroup>
-        {activeTab === "presets" && (
-          <PresetColorsPanel
-            setAttributes={setAttributes}
-          />
-          )}
-        {activeTab === "custom" && customColorsPanel()}
-        {activeTab === "defaults" && (
-          <RestoreToDefaults
-            setAttributes={setAttributes}
-          />
-        )}
-      </PanelBody>
-    );
-  }
-
-  function customColorsPanel() {
-    return (
-      <>
-        <ButtonGroup>
-          {addActiveSubTab("background", "Background")}
-          {addActiveSubTab("text", "Text")}
-          {addActiveSubTab("gradient", "Gradient")}
-        </ButtonGroup>
-        {activeSubTab === "background" && (
-          <ColorPicker
-            color={cardBgColor}
-            onChangeComplete={(value) =>
-              setAttributes({ cardBgColor: value.hex })
-            }
-            disableAlpha
-          />
-        )}
-        {activeSubTab === "text" && (
-          <ColorPicker
-            color={cardFontColor}
-            onChangeComplete={(value) =>
-              setAttributes({ cardFontColor: value.hex })
-            }
-            disableAlpha
-          />
-        )}
-        {activeSubTab === "gradient" && <GradientColorsPanel
-          gradientColorLeft={gradientColorLeft}
-          gradientColorRight={gradientColorRight}
-          setAttributes={setAttributes}
-        />}
-      </>
-    );
-  }
-
-  // function customColorsPanel() {
-  //   return (
-  //     <>
-  //       <ButtonGroup>
-  //         {addActiveSubTab("background", "Background")}
-  //         {addActiveSubTab("text", "Text")}
-  //         {addActiveSubTab("gradient", "Gradient")}
-  //       </ButtonGroup>
-  //       {subTabContent[activeSubTab]}
-  //     </>
-  //   );
-  // }
-
-  // const subTabContent = {
-  //   background: (
-  //     <ColorPicker
-  //       color={cardBgColor}
-  //       onChangeComplete={(value) => setAttributes({ cardBgColor: value.hex })}
-  //       disableAlpha
-  //     />
-  //   ),
-  //   text: (
-  //     <ColorPicker
-  //       color={cardFontColor}
-  //       onChangeComplete={(value) =>
-  //         setAttributes({ cardFontColor: value.hex })
-  //       }
-  //       disableAlpha
-  //     />
-  //   ),
-  //   gradient: (
-  //     <GradientColorsPanel
-  //       gradientColorLeft={gradientColorLeft}
-  //       gradientColorRight={gradientColorRight}
-  //       setAttributes={setAttributes}
-  //     />
-  //   ),
-  // };
-
-  const addActiveTab = (tabName, tabText) => {
-    return (
-      <Button
-        variant={activeTab === tabName ? "primary" : "secondary"}
-        onClick={() => setActiveTab(tabName)}
-      >
-        {tabText}
-      </Button>
-    );
-  };
-
-  const addActiveSubTab = (tabName, tabText) => {
-    return (
-      <Button
-        variant={activeSubTab === tabName ? "primary" : "secondary"}
-        onClick={() => setActiveSubTab(tabName)}
-      >
-        {tabText}
-      </Button>
-    );
-  };
-
   const handleZoneSelect = async (zone) => {
     setApiError(null);
     const result = await fetchTimeApiData(zone);
@@ -257,7 +117,10 @@ export default function Edit({ attributes, setAttributes }) {
 
   return (
     <>
-      <InspectorControls>{cardColorsPanel()}</InspectorControls>
+      <InspectorControls>{<CardColorsPanel
+          attributes={attributes}
+          setAttributes={setAttributes}
+        />}</InspectorControls>
       <div
         {...blockProps}
         style={{

@@ -50,7 +50,8 @@ const DUOTONE_PALETTE = constants.duotonePalette;
 //   }
 // ];
 
-export default function GradientColorsPanel({ gradientColorLeft, gradientColorRight, setAttributes }) {
+export default function GradientColorsPanel({ attributes, setAttributes }) {
+    const { gradientColorLeft, gradientColorRight } = attributes;
   return (
     <PanelBody title="Gradient Colors">
       <DuotonePicker
