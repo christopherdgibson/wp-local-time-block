@@ -1,13 +1,10 @@
-// components/GradientColorsPanel.jsx
 import { PanelBody, DuotonePicker } from "@wordpress/components";
 
 import constants from "../constants.json";
 
-const DEFAULT_GRADIENT_LEFT = constants.defaultAttributes.gradientColorLeft;
-const DEFAULT_GRADIENT_RIGHT = constants.defaultAttributes.gradientColorRight;
+const DEFAULT_GRADIENT_LEFT = constants.themePresets.default.gradientColorLeft;
+const DEFAULT_GRADIENT_RIGHT = constants.themePresets.default.gradientColorRight;
 const DUOTONE_PALETTE = constants.duotonePalette;
-console.log('DEFAULT_DUOTONE_COLORS: ', [DEFAULT_GRADIENT_LEFT, DEFAULT_GRADIENT_RIGHT]);
-//const THEME_ATTRIBUTES = constants.themeAttributes;
 
 // const DUOTONE_PALETTE = [
 //   {

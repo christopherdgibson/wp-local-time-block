@@ -22,6 +22,7 @@ import {
   SegmentedControl,
 } from "@wordpress/components";
 
+import PresetColorsPanel from "./components/PresetColorsPanel";
 import GradientColorsPanel from "./components/GradientColorsPanel";
 import RestoreToDefaults from "./components/RestoreToDefaults";
 
@@ -50,87 +51,9 @@ import { useRef, useEffect, useState } from "@wordpress/element";
 export default function Edit({ attributes, setAttributes }) {
   const { gradientColorLeft, gradientColorRight, cardBgColor, cardFontColor } =
     attributes;
-  const DEFAULT_FONT_COLOR = blockMetadata.attributes.cardFontColor.default;
-  const DEFAULT_BG_COLOR = blockMetadata.attributes.cardBgColor.default;
-  const DEFAULT_LEFT_COLOR = blockMetadata.attributes.gradientColorLeft.default;
-  const DEFAULT_RIGHT_COLOR =
-    blockMetadata.attributes.gradientColorRight.default;
-  const THEME_ATTRIBUTES = {
-    blue: {
-      gradientColorLeft: "#1a56d6",
-      gradientColorRight: "#e07b20",
-      cardFontColor: "#1a56d6",
-      cardBgColor: "#c2ddf7",
-    },
-    forest: {
-      gradientColorLeft: "#1a6b3c",
-      gradientColorRight: "#c4962a",
-      cardFontColor: "#1a6b3c",
-      cardBgColor: "#b8dfc8",
-    },
-    plum: {
-      gradientColorLeft: "#5b2d8e",
-      gradientColorRight: "#c0392b",
-      cardFontColor: "#5b2d8e",
-      cardBgColor: "#d4bfee",
-    },
-    slate: {
-      gradientColorLeft: "#2c4a6e",
-      gradientColorRight: "#e05c3a",
-      cardFontColor: "#2c4a6e",
-      cardBgColor: "#b8cfe0",
-    },
-  };
-
-  const DEFAULT_DUOTONE_COLORS = [DEFAULT_LEFT_COLOR, DEFAULT_RIGHT_COLOR];
-  const [duotone, setDuotone] = useState(DEFAULT_DUOTONE_COLORS);
-  const DUOTONE_PALETTE = [
-    {
-      colors: DEFAULT_DUOTONE_COLORS,
-      name: "Default",
-      slug: "default-theme-colors",
-    },
-    {
-      colors: ["#1a56d6", "#e07b20"], // #c2ddf7;
-      name: "Blue and orange",
-      slug: "blue-orange",
-    },
-    {
-      colors: ["#1a6b3c", "#c4962a"], // #b8dfc8;
-      name: "Forest and gold",
-      slug: "forest-gold",
-    },
-    {
-      colors: ["#5b2d8e", "#c0392b"], // #d4bfee;
-      name: "Plum and red",
-      slug: "plum-red",
-    },
-    {
-      colors: ["#2c4a6e", "#e05c3a"], // #b8cfe0;
-      name: "Slate and salmon",
-      slug: "slate-salmon",
-    },
-    {
-      colors: ["#8c00b7", "#fcff41"],
-      name: "Purple and yellow",
-      slug: "purple-yellow",
-    },
-    {
-      colors: ["#6e0edc", "#b7b7b7"],
-      name: "Purple and grey",
-      slug: "purple-grey",
-    },
-    { colors: ["#000097", "#ff4747"], name: "Blue and red", slug: "blue-red" },
-    {
-      colors: ["#000097", "#82c1f2"],
-      name: "Blue and light blue",
-      slug: "blue-light-blue",
-    },
-  ];
 
   const [activeTab, setActiveTab] = useState("presets");
   const [activeSubTab, setActiveSubTab] = useState("background");
-  const [activeTheme, setActiveTheme] = useState("default-colors");
   const blockProps = useBlockProps({ className: "local-time-container" });
   const containerRef = useRef();
   const apiDataRef = useRef();
@@ -333,17 +256,6 @@ export default function Edit({ attributes, setAttributes }) {
   }
   // Panels and UI
 
-  function presetColorsPanel() {
-    return (
-      <ButtonGroup className="btn-grid">
-        {addActiveTheme("blue", "Blue theme")}
-        {addActiveTheme("forest", "Forest theme")}
-        {addActiveTheme("plum", "Plum theme")}
-        {addActiveTheme("slate", "Slate theme")}
-      </ButtonGroup>
-    );
-  }
-
   function cardColorsPanel() {
     return (
       <PanelBody title="Card Design">
@@ -352,7 +264,11 @@ export default function Edit({ attributes, setAttributes }) {
           {addActiveTab("custom", "Custom")}
           {addActiveTab("defaults", "Defaults")}
         </ButtonGroup>
-        {activeTab === "presets" && presetColorsPanel()}
+        {activeTab === "presets" && (
+          <PresetColorsPanel
+            setAttributes={setAttributes}
+          />
+          )}
         {activeTab === "custom" && customColorsPanel()}
         {activeTab === "defaults" && (
           <RestoreToDefaults
@@ -456,22 +372,6 @@ export default function Edit({ attributes, setAttributes }) {
       >
         {tabText}
       </Button>
-    );
-  };
-
-  const addActiveTheme = (themeName, themeText) => {
-    return (
-      <button
-        className={`btn-theme-color btn-${themeName}${
-          activeTheme === themeName ? " selected" : ""
-        }`}
-        onClick={() => {
-          setActiveTheme(themeName);
-          setAttributes({ ...THEME_ATTRIBUTES[themeName] });
-        }}
-      >
-        {themeText}
-      </button>
     );
   };
 

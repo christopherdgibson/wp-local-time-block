@@ -2,11 +2,10 @@ import { Button, Modal } from "@wordpress/components";
 import constants from "../constants.json";
 import { useRef, useEffect, useState } from "@wordpress/element";
 
-const DEFAULT_DUOTONE_COLORS = constants.defaultDuotoneColors;
-const DEFAULT_GRADIENT_LEFT = constants.defaultAttributes.gradientColorLeft;
-const DEFAULT_GRADIENT_RIGHT = constants.defaultAttributes.gradientColorRight;
-const DEFAULT_BG_COLOR = constants.defaultAttributes.cardBgColor;
-const DEFAULT_FONT_COLOR = constants.defaultAttributes.cardFontColor;
+const DEFAULT_GRADIENT_LEFT = constants.themePresets.default.gradientColorLeft;
+const DEFAULT_GRADIENT_RIGHT = constants.themePresets.default.gradientColorRight;
+const DEFAULT_BG_COLOR = constants.themePresets.default.cardBgColor;
+const DEFAULT_FONT_COLOR = constants.themePresets.default.cardFontColor;
 
 export default function RestoreToDefaults({setAttributes}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
