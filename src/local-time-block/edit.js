@@ -25,6 +25,9 @@ import {
 import PresetColorsPanel from "./components/PresetColorsPanel";
 import GradientColorsPanel from "./components/GradientColorsPanel";
 import RestoreToDefaults from "./components/RestoreToDefaults";
+import Dropdown from "./components/Dropdown";
+
+import {fetchTimeApiData} from "./assets/js/fetchTimeApi.js";
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -33,7 +36,7 @@ import RestoreToDefaults from "./components/RestoreToDefaults";
  * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
  */
 // import "./editor.scss";
-import blockMetadata from "./block.json";
+
 import timeZoneData from "./assets/time-zone-names.json";
 
 const timeZoneNames = timeZoneData.timeZoneNames;
@@ -60,13 +63,14 @@ export default function Edit({ attributes, setAttributes }) {
   const duotoneRef = useRef(null);
   const [time, setTime] = useState(new Date());
   const [compareDifference, setCompareDifference] = useState(0);
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Remove unused Duotone items
   // useEffect(() => {
@@ -120,140 +124,6 @@ export default function Edit({ attributes, setAttributes }) {
   const compareMinutes = timeCompare.getMinutes().toString().padStart(2, "0");
   const compareSeconds = timeCompare.getSeconds().toString().padStart(2, "0");
 
-  // let Dropdown = ({ timeZones, setIsDropdownOpen, isDropdownOpen }) => {
-  let Dropdown = () => {
-    const toggleDropdown = () => {
-      setIsDropdownOpen(!isDropdownOpen);
-    };
-
-    return (
-      <>
-        {/* <input type="checkbox" class="dropdown-toggle" id="workDropdown" />
-        <label for="workDropdown" class="dropdown-label">
-          TimeZones &dtrif;
-        </label> */}
-        <div class="dropdown">
-          <button
-            className="dropbtn"
-            // Function to show the dropdown on click
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                toggleDropdown();
-                e.stopPropagation();
-              }
-            }}
-          >
-            Select a time zone
-          </button>
-          {/* <span className="block">
-            <FiChevronDown color="#635FC7" size={24} />
-          </span> */}
-
-          {isDropdownOpen && (
-            // <div className="absolute bottom-full translate-x-9  left-full translate-y-full rounded bg-[#20212c] w-max">
-            <ul className="dropdown-content">
-              {timeZoneNames.map((zone) => (
-                <li
-                  onClickCapture={() => {
-                    console.log("li clicked: ", zone);
-                    fetchTimeApiData(containerRef.current, zone);
-                  }}
-                  // key={zone.id}
-                >
-                  {zone}
-                  {/* <span>{zone}</span> */}
-                </li>
-              ))}
-            </ul>
-            // </div>
-          )}
-        </div>
-      </>
-    );
-  };
-
-  // API
-
-  function fetchTimeApiData(containerRef, selectedZone) {
-    const apiDataDiv = containerRef.querySelector(".api-data");
-    // if (!apiDataDiv) return;
-    const apiUrl = `https://timeapi.io/api/v1/time/current/zone?timezone=${selectedZone}`;
-    //const apiUrl = "https://timeapi.io/api/v1/timezone/availabletimezones";
-    //const apiUrl = getApiDataUrl(date);
-    console.log("apiUrl:", apiUrl);
-    //const apiPath = apiUrl;
-    const apiPath = `${dailyFeedBlock.ajaxUrl}?action=api_proxy&url=${apiUrl}`;
-    console.log("apiPath", apiPath);
-
-    fetchWithRetry(apiPath)
-      .then((jsondta) => {
-        if (jsondta) {
-          console.log("jsondta:", jsondta);
-          const utcOffsetMinutes = jsondta.utc_offset_seconds / 60;
-          setCompareDifference(utcOffsetMinutes + time.getTimezoneOffset());
-          console.log("localOffset: ", timeCompare);
-          console.log("utcOffset: ", utcOffsetMinutes);
-          console.log("compareDifference: ", compareDifference);
-        } else {
-          if (jsondta == "Too many requests.") {
-            apiDataDiv.innerHTML =
-              "Too many requests. Please wait at least 30 seconds.";
-          } else {
-            apiDataDiv.innerHTML = "No data found. Try reloading page.";
-            return;
-          }
-        }
-      })
-      .catch((error) => console.error("Error:", error));
-  }
-
-  async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-        const data = await response.json();
-        console.log("data: ", data);
-        if ("success" in data && !data.success) {
-          if (
-            data.data &&
-            data.data.error &&
-            data.data.error.includes("cURL error 28")
-          ) {
-            throw new Error("timeout");
-          }
-          throw new Error(data.message || "API returned success: false");
-        }
-
-        if (!data) {
-          if (
-            data[0]?.q &&
-            data[0]?.q?.includes(
-              "Too many requests. Obtain an auth key for unlimited access",
-            )
-          ) {
-            console.log("Too many requests: ", data);
-            return "Too many requests.";
-          } else {
-            console.log("data missing expected structure error:", data);
-            throw new Error("API data missing expected structure.");
-          }
-        }
-        return data;
-      } catch (err) {
-        if (
-          attempt < retries &&
-          (err.message === "timeout" || err.name === "TypeError")
-        ) {
-          console.log("Trying to fetch again, attempt:", attempt);
-          await new Promise((res) => setTimeout(res, delay));
-          // retry!
-        } else {
-          throw err;
-        }
-      }
-    }
-  }
   // Panels and UI
 
   function cardColorsPanel() {
@@ -375,6 +245,16 @@ export default function Edit({ attributes, setAttributes }) {
     );
   };
 
+  const handleZoneSelect = async (zone) => {
+    setApiError(null);
+    const result = await fetchTimeApiData(zone);
+    if (result.success) {
+      setCompareDifference(result.value + time.getTimezoneOffset());
+    } else {
+      setApiError(result.error);
+    }
+  };
+
   return (
     <>
       <InspectorControls>{cardColorsPanel()}</InspectorControls>
@@ -449,6 +329,7 @@ export default function Edit({ attributes, setAttributes }) {
                 </div>
               </div>
               <div class="api-data-date-container">
+                {apiError && <p className="api-error">{apiError}</p>}
                 <div class="clock-card">
                   <p class="clock-iana" id="clock-iana">
                     {timeZoneIANA}
@@ -482,7 +363,10 @@ export default function Edit({ attributes, setAttributes }) {
                     </span>
                   </div>
                 </div>
-                <Dropdown />
+                <Dropdown
+                  dropdownOptions={timeZoneNames}
+                  onOptionSelect={(zone) => handleZoneSelect(zone)}
+                 />
               </div>
             </div>
           </div>
