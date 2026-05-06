@@ -22,7 +22,7 @@ export default function Dropdown({ dropdownOptions, onOptionSelect }) {
             }
           }}
         >
-          Select a time zone
+          Select time zone {isDropdownOpen ? <>&#11205;</> : <>&#11206;</>}
         </button>
         {/* <span className="block">
             <FiChevronDown color="#635FC7" size={24} />
@@ -38,7 +38,6 @@ export default function Dropdown({ dropdownOptions, onOptionSelect }) {
               {dropdownOptions.map((zone) => (
                 <li
                   onClickCapture={() => {
-                    console.log("li clicked: ", zone);
                     onOptionSelect(zone);
                     setIsDropdownOpen(false)
                   }}

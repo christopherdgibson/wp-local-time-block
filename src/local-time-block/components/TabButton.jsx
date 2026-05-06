@@ -1,7 +1,6 @@
 import { Button } from "@wordpress/components";
 
 export default function TabButton({ tabName, tabText, activeTab, setActiveTab }) {
-    console.log("TabButton activeTab: ", activeTab);
     return (
         <Button
             variant={activeTab === tabName ? "primary" : "secondary"}

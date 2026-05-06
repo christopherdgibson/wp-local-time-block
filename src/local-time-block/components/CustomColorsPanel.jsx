@@ -9,7 +9,6 @@ export default function CustomColorsPanel({ attributes, setAttributes }) {
   const { cardBgColor, cardFontColor } =
     attributes;
   const [activeSubTab, setActiveSubTab] = useState("background");
-  console.log("activeSubTab", activeSubTab);
   return (
     <>
       <ButtonGroup>

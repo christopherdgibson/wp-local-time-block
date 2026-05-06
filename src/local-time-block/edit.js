@@ -12,11 +12,11 @@ import { __ } from "@wordpress/i18n";
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
 import { useBlockProps, InspectorControls } from "@wordpress/block-editor";
+import { useEffect, useState } from "@wordpress/element";
 
 import CardColorsPanel from "./components/CardColorsPanel";
 import Dropdown from "./components/Dropdown";
-
-import {fetchTimeApiData} from "./assets/js/fetchTimeApi.js";
+import { fetchTimeApiData } from "./assets/js/fetchTimeApi.js";
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -25,12 +25,6 @@ import {fetchTimeApiData} from "./assets/js/fetchTimeApi.js";
  * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
  */
 // import "./editor.scss";
-
-import timeZoneData from "./assets/time-zone-names.json";
-
-const timeZoneNames = timeZoneData.timeZoneNames;
-
-import { useRef, useEffect, useState } from "@wordpress/element";
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -41,15 +35,16 @@ import { useRef, useEffect, useState } from "@wordpress/element";
  * @return {Element} Element to render.
  */
 
+import timeZoneData from "./assets/time-zone-names.json";
+const timeZoneNames = timeZoneData.timeZoneNames;
+
 export default function Edit({ attributes, setAttributes }) {
   const { gradientColorLeft, gradientColorRight, cardBgColor, cardFontColor } =
     attributes;
 
   const blockProps = useBlockProps({ className: "local-time-container" });
-  const containerRef = useRef();
-  const apiDataRef = useRef();
-  const duotoneRef = useRef(null);
   const [time, setTime] = useState(new Date());
+  const [compareZone, setCompareZone] = useState("GMT");
   const [compareDifference, setCompareDifference] = useState(0);
   const [apiError, setApiError] = useState(null);
 
@@ -58,18 +53,12 @@ export default function Edit({ attributes, setAttributes }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Remove unused Duotone items
-  // useEffect(() => {
-  //   if (!duotoneRef.current) return;
-  //   duotoneRef.current
-  //     .querySelectorAll(".components-color-list-picker__swatch-button")
-  //     .forEach((btn) => {
-  //       btn.remove();
-  //     });
-  //   duotoneRef.current
-  //     .querySelector("button.components-circular-option-picker__clear")
-  //     ?.remove();
-  // });
+  useEffect(() => {
+    // prime the proxy with a cheap request on mount
+    fetch(
+      `${dailyFeedBlock.ajaxUrl}?action=api_proxy&url=https://timeapi.io/api/v1/time/current/zone?timezone=UTC`,
+    ).catch(() => {}); // silently discard result
+  }, []);
 
   const currentDate = time.toLocaleString("default", {
     day: "numeric",
@@ -82,18 +71,23 @@ export default function Edit({ attributes, setAttributes }) {
   const currentSeconds = time.getSeconds().toString().padStart(2, "0");
 
   // Timezone name (e.g. "Central European Summer Time")
-  const timeZoneLong = time
-    .toLocaleString("default", { timeZoneName: "long" })
-    .split(", ")[1];
+  const timeZoneLong = new Intl.DateTimeFormat("default", {
+    timeZoneName: "long",
+  })
+    .formatToParts(time)
+    .find((p) => p.type === "timeZoneName")?.value;
 
   // Timezone abbreviation/offset (e.g. "GMT+2" or "CEST")
-  const timeZoneShort = time
-    .toLocaleString("default", { timeZoneName: "short" })
-    .split(", ")[1];
+  const timeZoneShort = new Intl.DateTimeFormat("default", {
+    timeZoneName: "short",
+  })
+    .formatToParts(time)
+    .find((p) => p.type === "timeZoneName")?.value;
 
   // IANA timezone string (e.g. "Europe/Brussels")
   const timeZoneIANA = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+  // Timezone for comparison
   const timeCompare = moment(time).add(compareDifference, "m").toDate();
   const compareDate = timeCompare.toLocaleString("default", {
     day: "numeric",
@@ -105,8 +99,29 @@ export default function Edit({ attributes, setAttributes }) {
   const compareMinutes = timeCompare.getMinutes().toString().padStart(2, "0");
   const compareSeconds = timeCompare.getSeconds().toString().padStart(2, "0");
 
+  const compareTimeZoneLong = compareZone
+    ? new Intl.DateTimeFormat("default", {
+        timeZoneName: "long",
+        timeZone: compareZone,
+      })
+        .formatToParts(time)
+        .find((p) => p.type === "timeZoneName")?.value
+    : null;
+
+  const compareTimeZoneShort = compareZone
+    ? new Intl.DateTimeFormat("default", {
+        timeZoneName: "short",
+        timeZone: compareZone,
+      })
+        .formatToParts(time)
+        .find((p) => p.type === "timeZoneName")?.value
+    : null;
+
+  const compareTimeZoneIANA = compareZone;
+
   const handleZoneSelect = async (zone) => {
     setApiError(null);
+    setCompareZone(zone);
     const result = await fetchTimeApiData(zone);
     if (result.success) {
       setCompareDifference(result.value + time.getTimezoneOffset());
@@ -117,10 +132,14 @@ export default function Edit({ attributes, setAttributes }) {
 
   return (
     <>
-      <InspectorControls>{<CardColorsPanel
-          attributes={attributes}
-          setAttributes={setAttributes}
-        />}</InspectorControls>
+      <InspectorControls>
+        {
+          <CardColorsPanel
+            attributes={attributes}
+            setAttributes={setAttributes}
+          />
+        }
+      </InspectorControls>
       <div
         {...blockProps}
         style={{
@@ -138,7 +157,7 @@ export default function Edit({ attributes, setAttributes }) {
             </linearGradient>
           </defs>
         </svg>
-        <div class="card" ref={containerRef}>
+        <div class="card">
           <div className="card-container">
             <div className="local-time-header">
               <div class="local-time-title">Local time comparison</div>
@@ -161,6 +180,7 @@ export default function Edit({ attributes, setAttributes }) {
                   <p class="clock-iana" id="clock-iana">
                     {timeZoneIANA}
                   </p>
+                  <div class="accent-line"></div>
                   <p class="clock-dow" id="clock-dow">
                     {currentDOW}
                   </p>
@@ -193,43 +213,46 @@ export default function Edit({ attributes, setAttributes }) {
               </div>
               <div class="api-data-date-container">
                 {apiError && <p className="api-error">{apiError}</p>}
-                <div class="clock-card">
-                  <p class="clock-iana" id="clock-iana">
-                    {timeZoneIANA}
-                  </p>
-                  <p class="clock-dow" id="clock-dow">
-                    {compareDOW}
-                  </p>
-                  <p class="clock-date" id="clock-date">
-                    {compareDate}
-                  </p>
-                  <div class="clock-divider"></div>
-                  <div class="clock-time">
-                    <span class="clock-digits" id="clock-hh">
-                      {compareHours}
-                    </span>
-                    <span class="clock-sep">:</span>
-                    <span class="clock-digits" id="clock-mm">
-                      {compareMinutes}
-                    </span>
-                    <span class="clock-sep">:</span>
-                    <span class="clock-digits" id="clock-ss">
-                      {compareSeconds}
-                    </span>
-                  </div>
-                  <div class="clock-tz-row">
-                    <span class="clock-tz-badge" id="clock-tz-short">
-                      {timeZoneShort}
-                    </span>
-                    <span class="clock-tz-long" id="clock-tz-long">
-                      {timeZoneLong}
-                    </span>
+                <div class="clock-card-wrapper">
+                  <div class="clock-card">
+                    <p class="clock-iana" id="clock-iana">
+                      {compareTimeZoneIANA}
+                    </p>
+                    <div class="accent-line"></div>
+                    <p class="clock-dow" id="clock-dow">
+                      {compareDOW}
+                    </p>
+                    <p class="clock-date" id="clock-date">
+                      {compareDate}
+                    </p>
+                    <div class="clock-divider"></div>
+                    <div class="clock-time">
+                      <span class="clock-digits" id="clock-hh">
+                        {compareHours}
+                      </span>
+                      <span class="clock-sep">:</span>
+                      <span class="clock-digits" id="clock-mm">
+                        {compareMinutes}
+                      </span>
+                      <span class="clock-sep">:</span>
+                      <span class="clock-digits" id="clock-ss">
+                        {compareSeconds}
+                      </span>
+                    </div>
+                    <div class="clock-tz-row">
+                      <span class="clock-tz-badge" id="clock-tz-short">
+                        {compareTimeZoneShort}
+                      </span>
+                      <span class="clock-tz-long" id="clock-tz-long">
+                        {compareTimeZoneLong}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <Dropdown
                   dropdownOptions={timeZoneNames}
                   onOptionSelect={(zone) => handleZoneSelect(zone)}
-                 />
+                />
               </div>
             </div>
           </div>
