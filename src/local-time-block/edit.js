@@ -14,8 +14,8 @@ import { __ } from "@wordpress/i18n";
 import { useBlockProps, InspectorControls } from "@wordpress/block-editor";
 import { useEffect, useState } from "@wordpress/element";
 
-import CardColorsPanel from "./components/CardColorsPanel";
-import Dropdown from "./components/Dropdown";
+import CardColorsPanel from "@components/ui-panels/CardColorsPanel";
+import Dropdown from "@components/Dropdown";
 import { fetchTimeApiData } from "./assets/js/fetchTimeApi.js";
 
 /**
