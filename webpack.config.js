@@ -8,7 +8,8 @@ module.exports = {
         alias: {
             ...defaultConfig.resolve.alias,
             '@components': path.resolve(__dirname, 'src/local-time-block/components'),
-            '@local-time-block': path.resolve(__dirname, 'src/local-time-block')
+            '@local-time-block': path.resolve(__dirname, 'src/local-time-block'),
+            '@block-root': path.resolve(__dirname, 'src/local-time-block')
         },
     },
 };

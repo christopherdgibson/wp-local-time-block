@@ -1,8 +1,19 @@
-export async function fetchTimeApiData(selectedZone) {
+  interface ZoneSuccess {
+    success: true;
+    value: number;
+  }
+  interface ZoneFailure {
+    success: false;
+    error: string;
+  }
+
+  type ZoneResult = ZoneSuccess | ZoneFailure;
+
+export async function fetchTimeApiData(selectedZone: string) : Promise<ZoneResult> {
     const apiUrl = `https://timeapi.io/api/v1/time/current/zone?timezone=${selectedZone}`;
     console.log("apiUrl:", apiUrl);
     //const apiPath = apiUrl;
-    const apiPath = `${dailyFeedBlock.ajaxUrl}?action=api_proxy&url=${apiUrl}`;
+    const apiPath = `${localTimeBlock.ajaxUrl}?action=api_proxy&url=${apiUrl}`;
     console.log("apiPath", apiPath);
 
     return fetchWithRetry(apiPath)
@@ -10,22 +21,22 @@ export async function fetchTimeApiData(selectedZone) {
         if (jsondta) {
           console.log("jsondta:", jsondta);
           const utcOffsetMinutes = jsondta.utc_offset_seconds / 60;
-          return { success: true, value: utcOffsetMinutes };
+          return { success: true as const, value: utcOffsetMinutes };
         } else {
           if (jsondta == "Too many requests.") {
-            return { success: false, error: "Too many requests. Please wait at least 30 seconds." };
+            return { success: false as const, error: "Too many requests. Please wait at least 30 seconds." };
           } else {
-            return { success: false, error: "No data found. Try reloading page." };
+            return { success: false as const, error: "No data found. Try reloading page." };
           }
         }
       })
       .catch((error) => {
         console.error("Error:", error);
-        return { success: false, error: "An unexpected error occurred." };
+        return { success: false as const, error: "An unexpected error occurred." };
     });
 }
 
-  async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+  async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3, delay = 1000) {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const response = await fetch(url, options);
@@ -58,16 +69,16 @@ export async function fetchTimeApiData(selectedZone) {
           }
         }
         return data;
-      } catch (err) {
+      } catch (error: any) {
         if (
           attempt < retries &&
-          (err.message === "timeout" || err.name === "TypeError")
+          (error.message === "timeout" || error.name === "TypeError")
         ) {
           console.log("Trying to fetch again, attempt:", attempt);
           await new Promise((res) => setTimeout(res, delay));
           // retry!
         } else {
-          throw err;
+          throw error;
         }
       }
     }

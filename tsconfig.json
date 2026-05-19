@@ -1,0 +1,25 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        // "allowJs": true,
+        "noEmit": true,
+        "resolveJsonModule": true,
+        "noUnusedLocals": true,
+        "paths": {
+          "@components/*": ["./src/local-time-block/components/*"],
+          "@local-time-block/*": ["./src/local-time-block/*"],
+          "@block-root/*": ["./src/local-time-block/*"],
+          "@block-root/types": ["./src/local-time-block/types.ts"],
+          "@block-root/constants": ["./src/local-time-block/constants.json"]
+        }
+    },
+    "include": [
+    "./src/local-time-block/**/*.ts",
+    "./src/local-time-block/**/*.tsx", "src/local-time-block/components/ui-panels/CustomColorsPanel/index.tsx", "src/local-time-block/components/ui-panels/CardColorsPanel/index.tsx", "src/local-time-block/edit.tsx",
+  ]
+}

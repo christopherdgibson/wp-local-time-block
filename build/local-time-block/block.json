@@ -3,13 +3,9 @@
   "apiVersion": 3,
   "name": "create-block/local-time-block",
   "version": "0.1.0",
-  "author": "Christopher D Gibson",
-  "authorURI": "https://christopherdgibson.github.io",
-  "license": "GPL-2.0-or-later",
-  "licenseURI": "https://www.gnu.org/licenses/gpl-2.0.html",
   "title": "Local Time Block",
   "category": "widgets",
-  "icon": "calendar",
+  "icon": "clock",
   "description": "Block for displaying local time.",
   "attributes": {
     "align": {

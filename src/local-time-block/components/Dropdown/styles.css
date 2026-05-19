@@ -1,0 +1,62 @@
+.dropbtn {
+    /* background-color: var(--accent-primary); */
+    /* background-image: var(--divider-bar-grad);
+    color: white;
+    padding: 16px;
+    font-size: 16px; */
+    all: unset;
+    padding: 1px 5px;
+    border: solid 1px currentColor;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* Show dropdown when checkbox is checked */
+.dropdown-toggle:checked ~ ul.dropdown {
+    visibility: visible;
+    opacity: 1;
+}
+
+.dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+}
+
+.dropdown-content {
+    /* display: none; */
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    max-height: 500px;
+    overflow-y: scroll;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.dropdown-content li {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content li:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropbtn {
+    background-image: none;
+    background-color: var(--bg-selected);
+}

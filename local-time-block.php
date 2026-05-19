@@ -86,7 +86,7 @@ add_action('enqueue_block_editor_assets', 'local_time_block_enqueue_editor');
 function local_time_block_enqueue_editor() {
     wp_localize_script(
         'create-block-daily-feed-block-editor-script',
-        'dailyFeedBlock',
+        'localTimeBlock',
         array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
         )
@@ -97,7 +97,7 @@ add_action('wp_enqueue_scripts', 'local_time_block_enqueue');
 function local_time_block_enqueue() {
     wp_localize_script(
 		'create-block-daily-feed-block-view-script',
-        'dailyFeedBlock',
+        'localTimeBlock',
         array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
         )
